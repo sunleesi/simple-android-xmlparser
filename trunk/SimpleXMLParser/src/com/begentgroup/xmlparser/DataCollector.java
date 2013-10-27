@@ -17,12 +17,6 @@ class DataCollector {
 	
 	Stack<DataUnit> mStack = new Stack<DataUnit>();
 	
-	public static final int CLASS_NOT_FIXED = -1;
-	public static final int CLASS_PRIMITIVE = 0;
-	public static final int CLASS_ARRAY = 1;
-	public static final int CLASS_COLLECTION = 2;
-	public static final int CLASS_OBJECT = 3;
-	
 	public DataCollector(String elementName,Object object,Class clazz, int level) {
 		pushDataUnit(elementName, clazz, object, level);
 	}
@@ -39,27 +33,27 @@ class DataCollector {
 				Field f = fi.f;
 				f.setAccessible(true);
 				switch(fi.fieldType) {
-				case CLASS_PRIMITIVE :
+				case Utils.CLASS_PRIMITIVE :
 					break;
-				case CLASS_ARRAY :
+				case Utils.CLASS_ARRAY :
 					Class childClass = fi.component;
-					if (fi.componentType == CLASS_OBJECT) {
+					if (fi.componentType == Utils.CLASS_OBJECT) {
 						Object obj = childClass.newInstance();
 						ArrayData ad = unit.arrayData.get(f.getName());
 						ad.array.add(obj);
 						pushDataUnit(tag, childClass, obj, level);
 					}
 					break;
-				case CLASS_COLLECTION :
+				case Utils.CLASS_COLLECTION :
 					Class cc = fi.component;
-					if (fi.componentType == CLASS_OBJECT) {
+					if (fi.componentType == Utils.CLASS_OBJECT) {
 						Object obj = cc.newInstance();
 						Collection collection = (Collection)f.get(unit.mObject);
 						collection.add(obj);
 						pushDataUnit(tag, cc, obj, level);
 					}
 					break;
-				case CLASS_OBJECT :
+				case Utils.CLASS_OBJECT :
 					Object value = f.getType().newInstance();
 					f.set(unit.mObject, value);
 					pushDataUnit(tag, f.getType(), value , level);
@@ -123,22 +117,22 @@ class DataCollector {
 				int type = fi.fieldType;
 				
 				switch(type) {
-				case CLASS_PRIMITIVE :
+				case Utils.CLASS_PRIMITIVE :
 					setPrimitiveValue(unit.mObject, f, content);
 					break;
-				case CLASS_ARRAY :
-					if (fi.componentType == CLASS_PRIMITIVE) {
+				case Utils.CLASS_ARRAY :
+					if (fi.componentType == Utils.CLASS_PRIMITIVE) {
 						ArrayList al = unit.arrayData.get(f.getName()).array;
 						setCollectionValue(al, fi.component , content);
 					}
 					break;
-				case CLASS_COLLECTION :
-					if (fi.componentType == CLASS_PRIMITIVE) {
+				case Utils.CLASS_COLLECTION :
+					if (fi.componentType == Utils.CLASS_PRIMITIVE) {
 						Collection collection = (Collection)f.get(unit.mObject);
 						setCollectionValue(collection, fi.component, content);
 					}
 					break;
-				case CLASS_OBJECT :
+				case Utils.CLASS_OBJECT :
 					break;
 				}
 			} catch (IllegalArgumentException e) {
@@ -167,7 +161,7 @@ class DataCollector {
 		}
 		childUnit.tables = table;
 		
-		if (object.getClass() == clazz && getClassType(clazz) == CLASS_OBJECT) {
+		if (object.getClass() == clazz && Utils.getClassType(clazz) == Utils.CLASS_OBJECT) {
 			
 			Field[] fields;
 			
@@ -179,22 +173,22 @@ class DataCollector {
 			}
 			
 			for (Field field : fields) {
-				int type = CLASS_NOT_FIXED;
+				int type = Utils.CLASS_NOT_FIXED;
 				FieldInfo fi = null;
 				if (isNewClass) {
 					fi = new FieldInfo();
 					fi.f = field;
-					type = getClassType(field.getType());
+					type = Utils.getClassType(field.getType());
 					fi.fieldType = type;
 					table.fieldInfos.put(field.getName(), fi);
 				} else {
 					fi = table.fieldInfos.get(field.getName());
 					type = fi.fieldType;
 				}
-				if (type == CLASS_COLLECTION) {
+				if (type == Utils.CLASS_COLLECTION) {
 					if (isNewClass) {
 						fi.component = (Class)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
-						fi.componentType = getClassType(fi.component);
+						fi.componentType = Utils.getClassType(fi.component);
 					}
 					Object value;
 					try {
@@ -205,10 +199,10 @@ class DataCollector {
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
 					}
-				} else if (type == CLASS_ARRAY) {
+				} else if (type == Utils.CLASS_ARRAY) {
 					if (isNewClass) {
 						fi.component = field.getType().getComponentType();
-						fi.componentType = getClassType(fi.component);
+						fi.componentType = Utils.getClassType(fi.component);
 					}
 					ArrayData ad = new ArrayData();
 					ad.field = field;
@@ -217,21 +211,6 @@ class DataCollector {
 			}
 		}
 		mStack.push(childUnit);
-	}
-	
-	public int getClassType(Class clazz) {
-		if (clazz.isPrimitive() || 
-			clazz == Integer.class || clazz == Long.class || clazz == Short.class ||
-			clazz == String.class || 
-			clazz == Character.class || clazz == Boolean.class ||
-			clazz == Float.class || clazz == Double.class) {
-			return CLASS_PRIMITIVE;
-		} else if (clazz.isArray()) {
-			return CLASS_ARRAY;
-		} else if (Collection.class.isAssignableFrom(clazz)) {
-			return CLASS_COLLECTION;
-		} 
-		return CLASS_OBJECT;
 	}
 	
 	public boolean setPrimitiveValue(Object obj, Field f, String value) {
