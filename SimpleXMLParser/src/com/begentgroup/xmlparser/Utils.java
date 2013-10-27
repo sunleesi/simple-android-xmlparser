@@ -34,7 +34,9 @@ class Utils {
 			FieldInfo info = new FieldInfo();
 			info.f = field;
 			info.fieldType = Utils.getClassType(field.getType());
-			if (field.getAnnotation(Attribute.class) != null) {
+			if (field.getAnnotation(Exclusion.class) != null) {
+				info.annotationType = FieldInfo.ANNOTATION_TYPE_EXCLUSION;
+			} else if (field.getAnnotation(Attribute.class) != null) {
 				info.annotationType = FieldInfo.ANNOTATION_TYPE_ATTRIBUTE;
 			} else if (field.getAnnotation(Element.class) != null) {
 				info.annotationType = FieldInfo.ANNOTATION_TYPE_ELEMENT;

@@ -77,10 +77,8 @@ class XMLGenerator {
 							sb.append(" " + f.getName() + "= \"" + v + "\"");
 						}
 					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -89,7 +87,7 @@ class XMLGenerator {
 
 			for (Field f : table.fields) {
 				FieldInfo cinfo = table.fieldInfos.get(f.getName());
-				if (cinfo.annotationType != FieldInfo.ANNOTATION_TYPE_ATTRIBUTE) {
+				if (cinfo.annotationType != FieldInfo.ANNOTATION_TYPE_ATTRIBUTE && cinfo.annotationType != FieldInfo.ANNOTATION_TYPE_EXCLUSION) {
 					Object v = null;
 					try {
 						v = f.get(object);
