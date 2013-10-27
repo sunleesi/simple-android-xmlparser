@@ -147,7 +147,6 @@ class DataCollector {
 	
 
 	public void pushDataUnit(String elementName,Class clazz, Object object, int level) {
-		boolean isNewClass = false;
 		DataUnit childUnit = new DataUnit();
 		childUnit.elementName = elementName;
 		childUnit.clazz = clazz;
@@ -155,41 +154,20 @@ class DataCollector {
 		childUnit.level = level;
 		ClassInfoTable table = sClassInfo.get(clazz);
 		if (table == null) {
-			table = new ClassInfoTable();
+			table = Utils.makeClassInfoTable(clazz);
 			sClassInfo.put(clazz, table);
-			isNewClass = true;
 		}
 		childUnit.tables = table;
 		
 		if (object.getClass() == clazz && Utils.getClassType(clazz) == Utils.CLASS_OBJECT) {
 			
-			Field[] fields;
-			
-			if (isNewClass) {
-				fields = clazz.getDeclaredFields();
-				table.fields = fields;
-			} else {
-				fields = table.fields;
-			}
-			
+			Field[] fields = table.fields;
+						
 			for (Field field : fields) {
-				int type = Utils.CLASS_NOT_FIXED;
-				FieldInfo fi = null;
-				if (isNewClass) {
-					fi = new FieldInfo();
-					fi.f = field;
-					type = Utils.getClassType(field.getType());
-					fi.fieldType = type;
-					table.fieldInfos.put(field.getName(), fi);
-				} else {
-					fi = table.fieldInfos.get(field.getName());
-					type = fi.fieldType;
-				}
+				FieldInfo fi = table.fieldInfos.get(field.getName());
+				int type = fi.fieldType;
+				
 				if (type == Utils.CLASS_COLLECTION) {
-					if (isNewClass) {
-						fi.component = (Class)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
-						fi.componentType = Utils.getClassType(fi.component);
-					}
 					Object value;
 					try {
 						value = field.getType().newInstance();
@@ -200,10 +178,6 @@ class DataCollector {
 						e.printStackTrace();
 					}
 				} else if (type == Utils.CLASS_ARRAY) {
-					if (isNewClass) {
-						fi.component = field.getType().getComponentType();
-						fi.componentType = Utils.getClassType(fi.component);
-					}
 					ArrayData ad = new ArrayData();
 					ad.field = field;
 					childUnit.arrayData.put(field.getName(), ad);
