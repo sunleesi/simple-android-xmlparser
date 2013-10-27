@@ -63,7 +63,7 @@ class XMLGenerator {
 		case Utils.CLASS_OBJECT :
 			ClassInfoTable table = tables.get(object.getClass());
 			if (table == null) {
-				table = makeClassInfoTable(object.getClass());
+				table = Utils.makeClassInfoTable(object.getClass());
 				tables.put(object.getClass(), table);
 			}
 			sb.append("<"+element);
@@ -112,34 +112,6 @@ class XMLGenerator {
 		return sb.toString();
 	}
 	
-	private ClassInfoTable makeClassInfoTable(Class<? extends Object> clazz) {
-		ClassInfoTable table = new ClassInfoTable();
-		table.fields = clazz.getDeclaredFields();
-		for (Field field : table.fields) {
-			FieldInfo info = new FieldInfo();
-			info.f = field;
-			info.fieldType = Utils.getClassType(field.getType());
-			if (field.getAnnotation(Attribute.class) != null) {
-				info.annotationType = FieldInfo.ANNOTATION_TYPE_ATTRIBUTE;
-			} else if (field.getAnnotation(Element.class) != null) {
-				info.annotationType = FieldInfo.ANNOTATION_TYPE_ELEMENT;
-			}
-				
-			switch (info.fieldType) {
-			case Utils.CLASS_ARRAY :
-				info.component = field.getType().getComponentType();
-				info.componentType = Utils.getClassType(info.component);
-				break;
-			case Utils.CLASS_COLLECTION :
-				info.component = (Class)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
-				info.componentType = Utils.getClassType(info.component);
-				break;
-			}
-			table.fieldInfos.put(field.getName(), info);
-		}
-		return table;
-	}
-
 	@Override
 	public String toString() {
 		return result;
