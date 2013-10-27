@@ -33,6 +33,20 @@ public class XMLParser {
 		mappingTable.put(xmlName, fieldName);
 	}
 	
+	public String toXML(Object object, String firstElement, String head, String tail) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<?xml version=\"1.0\"?>\n\r");
+		if (head != null && !head.equals("")) {
+			sb.append(head + "\n\r");
+		}
+		XMLGenerator generator = new XMLGenerator(firstElement, object);
+		sb.append(generator.toString() + "\n\r");
+		if (tail != null && !tail.equals("")) {
+			sb.append(tail);
+		}
+		return sb.toString();
+	}
+	
 	public <T> T fromXml(InputStream is, String firstElement, Class<T> classOfT) {
 		T obj = null;
 		try {
