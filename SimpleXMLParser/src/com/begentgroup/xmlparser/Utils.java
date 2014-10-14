@@ -53,9 +53,23 @@ class Utils {
 				info.componentType = Utils.getClassType(info.component);
 				break;
 			}
-			table.fieldInfos.put(field.getName(), info);
+			String name = getFieldName(field);
+			info.name = name;
+			table.fieldInfos.put(name, info);
 		}
 		return table;
+	}
+	
+	public static String getFieldName(Field field) {
+		String name = field.getName();
+		SerializedName sn = field.getAnnotation(SerializedName.class);
+		if (sn != null) {
+			String value = sn.value();
+			if (value != null) {
+				name = value;
+			}
+		}
+		return name;
 	}
 	
 }

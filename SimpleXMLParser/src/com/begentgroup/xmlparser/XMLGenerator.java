@@ -68,13 +68,13 @@ class XMLGenerator {
 			}
 			sb.append("<"+element);
 			for (Field f : table.fields) {
-				FieldInfo cinfo = table.fieldInfos.get(f.getName());
+				FieldInfo cinfo = table.fieldInfos.get(Utils.getFieldName(f));
 				if (cinfo.annotationType == FieldInfo.ANNOTATION_TYPE_ATTRIBUTE && cinfo.fieldType == Utils.CLASS_PRIMITIVE) {
 					Object v = null;
 					try {
 						v = f.get(object);
 						if (v != null) {
-							sb.append(" " + f.getName() + "= \"" + v + "\"");
+							sb.append(" " + cinfo.name + "= \"" + v + "\"");
 						}
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
@@ -86,13 +86,13 @@ class XMLGenerator {
 			sb.append(">\n\r");
 
 			for (Field f : table.fields) {
-				FieldInfo cinfo = table.fieldInfos.get(f.getName());
+				FieldInfo cinfo = table.fieldInfos.get(Utils.getFieldName(f));
 				if (cinfo.annotationType != FieldInfo.ANNOTATION_TYPE_ATTRIBUTE && cinfo.annotationType != FieldInfo.ANNOTATION_TYPE_EXCLUSION) {
 					Object v = null;
 					try {
 						v = f.get(object);
 						if (v != null) {
-							sb.append(generatingXML(f.getName(), v, cinfo));
+							sb.append(generatingXML(cinfo.name, v, cinfo));
 						}
 					} catch (IllegalArgumentException e) {
 						// TODO Auto-generated catch block

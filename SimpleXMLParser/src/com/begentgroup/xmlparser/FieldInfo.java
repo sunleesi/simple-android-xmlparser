@@ -12,5 +12,6 @@ class FieldInfo {
 	int annotationType = ANNOTATION_TYPE_NONE;
 	int fieldType = Utils.CLASS_NOT_FIXED;
 	int componentType = Utils.CLASS_NOT_FIXED;
+	String name;
 	Class component;
 }
