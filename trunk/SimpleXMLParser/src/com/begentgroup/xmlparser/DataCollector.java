@@ -39,7 +39,7 @@ class DataCollector {
 					Class childClass = fi.component;
 					if (fi.componentType == Utils.CLASS_OBJECT) {
 						Object obj = childClass.newInstance();
-						ArrayData ad = unit.arrayData.get(f.getName());
+						ArrayData ad = unit.arrayData.get(fi.name);
 						ad.array.add(obj);
 						pushDataUnit(tag, childClass, obj, level);
 					}
@@ -122,7 +122,7 @@ class DataCollector {
 					break;
 				case Utils.CLASS_ARRAY :
 					if (fi.componentType == Utils.CLASS_PRIMITIVE) {
-						ArrayList al = unit.arrayData.get(f.getName()).array;
+						ArrayList al = unit.arrayData.get(fi.name).array;
 						setCollectionValue(al, fi.component , content);
 					}
 					break;
@@ -164,7 +164,8 @@ class DataCollector {
 			Field[] fields = table.fields;
 						
 			for (Field field : fields) {
-				FieldInfo fi = table.fieldInfos.get(field.getName());
+				String name = Utils.getFieldName(field);
+				FieldInfo fi = table.fieldInfos.get(name);
 				int type = fi.fieldType;
 				
 				if (type == Utils.CLASS_COLLECTION) {
@@ -180,7 +181,7 @@ class DataCollector {
 				} else if (type == Utils.CLASS_ARRAY) {
 					ArrayData ad = new ArrayData();
 					ad.field = field;
-					childUnit.arrayData.put(field.getName(), ad);
+					childUnit.arrayData.put(name, ad);
 				}
 			}
 		}
